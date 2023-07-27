@@ -2,11 +2,11 @@
 
 ## Implements
 
-- User
-- Admin
-- Simple auth
-- Hotels
-- Rooms
+- [ ] User
+- [ ] Admin
+- [ ] Simple auth
+- [ ] Hotels
+- [ ] Rooms
 
 ## Use stacks
 
