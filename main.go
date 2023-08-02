@@ -15,8 +15,6 @@ import (
 )
 
 const dburi = "mongodb://localhost:27017"
-const dbname = "reservation"
-const userColl = "users"
 
 func main() {
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(dburi))
