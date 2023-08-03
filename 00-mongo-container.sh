@@ -1,3 +1,4 @@
 #!/bin/bash
 
-docker run --name mongodb -d mongo -p 27017:27017
+docker rm mongodb
+docker run --name mongo -d -p 27017:27017 mongo
