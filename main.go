@@ -48,6 +48,8 @@ func main() {
 
 	app := fiber.New(config)
 	appV1 := app.Group("/app/v1")
+	appV1.Delete("/user/:id", userHandler.HandleDeleteUser)
+	appV1.Post("/user", userHandler.HandlePostUsers)
 	appV1.Get("/user", userHandler.HandleGetUsers)
 	appV1.Get("/user/:id", userHandler.HandleGetUser)
 	app.Listen(*port)
