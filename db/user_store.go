@@ -13,11 +13,17 @@ import (
 const DBNAME = "reservation"
 const USERCOLL = "users"
 
+type Dropper interface {
+	Drop(context.Context) error
+}
+
 type UserStore interface {
+	Dropper
 	GetUserByID(context.Context, string) (*types.User, error)
 	GetUsers(context.Context) ([]*types.User, error)
 	CreateUser(context.Context, *types.User) (*types.User, error)
 	DeleteUser(context.Context, string) error
+	UpdateUser(ctx context.Context, filter bson.M, params types.UpdateUserParams) error
 }
 type PostgresUserStore struct {
 }
@@ -26,11 +32,16 @@ type MongoUserStore struct {
 	coll   *mongo.Collection
 }
 
-func NewUserMongoStore(client *mongo.Client) *MongoUserStore {
+func NewUserMongoStore(client *mongo.Client, dbname string) *MongoUserStore {
 	return &MongoUserStore{
 		client: client,
-		coll:   client.Database(DBNAME).Collection(USERCOLL),
+		coll:   client.Database(dbname).Collection(USERCOLL),
 	}
+}
+
+func (s *MongoUserStore) Drop(ctx context.Context) error {
+	fmt.Println("---- Droppin user's collection ----")
+	return s.coll.Drop(ctx)
 }
 
 func (s *MongoUserStore) GetUserByID(ctx context.Context, id string) (*types.User, error) {
@@ -77,6 +88,20 @@ func (s *MongoUserStore) DeleteUser(ctx context.Context, id string) error {
 	}
 	if res.DeletedCount == 0 {
 		return fmt.Errorf("nobody deleted: %s", id)
+	}
+	return nil
+}
+
+func (s *MongoUserStore) UpdateUser(ctx context.Context, filter bson.M, params types.UpdateUserParams) error {
+
+	update := bson.D{
+		{
+			"$set", params.ToBSON(),
+		},
+	}
+	_, err := s.coll.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return err
 	}
 	return nil
 }

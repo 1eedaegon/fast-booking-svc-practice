@@ -14,9 +14,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-const dburi = "mongodb://localhost:27017"
-const DBNAME = "reservation"
-const USERCOLL = "users"
+const (
+	dburi    = "mongodb://localhost:27017"
+	DBNAME   = "reservation"
+	USERCOLL = "users"
+)
 
 // Error handler
 var config = fiber.Config{
@@ -44,12 +46,13 @@ func main() {
 	flag.Parse()
 
 	// TODO: Impl handler
-	userHandler := api.NewUserHandler(db.NewUserMongoStore(client))
+	userHandler := api.NewUserHandler(db.NewUserMongoStore(client, DBNAME))
 
 	app := fiber.New(config)
 	appV1 := app.Group("/app/v1")
+	appV1.Put("/user/:id", userHandler.HandlePutUser)
 	appV1.Delete("/user/:id", userHandler.HandleDeleteUser)
-	appV1.Post("/user", userHandler.HandlePostUsers)
+	appV1.Post("/user", userHandler.HandlePostUser)
 	appV1.Get("/user", userHandler.HandleGetUsers)
 	appV1.Get("/user/:id", userHandler.HandleGetUser)
 	app.Listen(*port)
